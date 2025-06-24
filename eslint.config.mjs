@@ -1,34 +1,48 @@
-import { FlatCompat } from '@eslint/eslintrc';
+import js from '@eslint/js';
+import typescriptParser from '@typescript-eslint/parser';
+import reactRefresh from 'eslint-plugin-react-refresh';
+import { FlatCompat } from "@eslint/eslintrc";
 
-const compat = new FlatCompat();
+const compat = new FlatCompat({
+    recommendedConfig: js.configs.recommended
+});
 
 export default [
-  ...compat.extends('plugin:@angular-eslint/recommended', 'plugin:@angular-eslint/template/process-inline-templates'),
+  ...compat.extends('eslint:recommended', 'plugin:@typescript-eslint/recommended', 'plugin:react-hooks/recommended'),
   {
     files: ['**/*.ts', '**/*.tsx'],
     languageOptions: {
+      globals: {
+        browser: true,
+        es2020: true,
+      },
+      parser: typescriptParser,
       parserOptions: {
-        project: ['tsconfig.json'],
-        createDefaultProgram: true,
+        ecmaVersion: 'latest',
+        sourceType: 'module',
       },
     },
+    plugins: {
+      reactRefresh
+    },
     rules: {
-      '@angular-eslint/directive-selector': [
+      '@typescript-eslint/no-unused-vars': [
         'error',
-        { type: 'attribute', prefix: 'app', style: 'camelCase' },
+        {
+          args: 'all',
+          argsIgnorePattern: '^_',
+          caughtErrors: 'all',
+          caughtErrorsIgnorePattern: '^_',
+          destructuredArrayIgnorePattern: '^(_|set)',
+          varsIgnorePattern: '^_',
+          ignoreRestSiblings: true,
+        },
       ],
-      '@angular-eslint/component-selector': [
-        'error',
-        { type: 'element', prefix: 'app', style: 'kebab-case' },
-      ]
+      'reactRefresh/only-export-components': ['warn', { allowConstantExport: true }],
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
-  ...compat.extends('plugin:@angular-eslint/template/recommended'),
   {
-    files: ['**/*.html'],
-    rules: {},
-  },
-  {
-    ignores: ['projects/**/*']
-  },
+    ignores: ['dist']
+  }
 ];
